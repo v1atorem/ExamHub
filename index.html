@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ExamHub — matematikadan tayyorgarlik</title>
+<meta name="description" content="4 ta savolga javob bering va farzandingizga matematikadan qaysi tayyorgarlik yoʻli mos kelishini bilib oling.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+/* ================== НАСТРОЙКИ ================== */
+window.QUIZ_CONFIG = {
+  // URL веб-приложения Google Apps Script (Deploy → Web app → URL, заканчивается на /exec)
+  ENDPOINT: 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE',
+  // ID пикселя Meta. Оставьте пустым, чтобы отключить пиксель.
+  PIXEL_ID: '',
+  // Название квиза — уйдёт в карточку KeyCRM
+  QUIZ_NAME: 'Квиз ExamHub — математика',
+  // Язык по умолчанию: 'uz' или 'ru'. Можно переопределить ссылкой ?lang=ru
+  DEFAULT_LANG: 'uz'
+};
+</script>
+
+<!-- Meta Pixel (включается, только если указан PIXEL_ID) -->
+<script>
+(function () {
+  var id = window.QUIZ_CONFIG.PIXEL_ID;
+  if (!id) { window.fbq = function () {}; return; }
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', id);
+  fbq('track', 'PageView');
+})();
+</script>
+
+<style>
+  :root {
+    --brand: #2F5BFF;
+    --brand-dark: #1E3FCC;
+    --brand-soft: #EEF2FF;
+    --ink: #0F172A;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --bg: #F6F8FC;
+    --card: #FFFFFF;
+    --ok: #16A34A;
+    --err: #DC2626;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 40px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 6px 2px 14px; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+  .logo span { color: var(--brand); }
+
+  .lang { display: inline-flex; background: #fff; border: 1.5px solid var(--line); border-radius: 99px; padding: 3px; }
+  .lang button {
+    border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 700;
+    color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; letter-spacing: .03em;
+  }
+  .lang button.active { background: var(--brand); color: #fff; }
+
+  .progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 18px; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: 99px; transition: width .35s ease; }
+
+  .card {
+    background: var(--card); border-radius: var(--radius); padding: 24px 20px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 24px rgba(15,23,42,.06);
+    animation: in .3s ease;
+  }
+  @keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  h1 { font-size: 26px; line-height: 1.2; margin: 0 0 12px; letter-spacing: -0.02em; }
+  h2 { font-size: 21px; line-height: 1.3; margin: 0 0 18px; letter-spacing: -0.01em; }
+  p.lead { font-size: 16px; line-height: 1.55; color: #334155; margin: 0 0 22px; }
+  .qlabel { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); margin-bottom: 8px; }
+
+  .hero-points { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; }
+  .hero-points li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: #334155; }
+  .hero-points b { color: var(--brand); }
+
+  .options { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 15px 16px; border: 1.5px solid var(--line); border-radius: 14px; background: #fff;
+    font: inherit; font-size: 16px; font-weight: 600; color: var(--ink); cursor: pointer;
+    transition: border-color .15s, background .15s, transform .05s;
+  }
+  .opt:hover { border-color: #B8C4FF; }
+  .opt:active { transform: scale(.99); }
+  .opt .dot { flex: 0 0 20px; height: 20px; border-radius: 50%; border: 2px solid #CBD5E1; }
+  .opt.selected { border-color: var(--brand); background: var(--brand-soft); }
+  .opt.selected .dot { border-color: var(--brand); background: radial-gradient(circle, var(--brand) 45%, transparent 50%); }
+  .opt .emoji { font-size: 20px; }
+
+  .answer-box {
+    margin-top: 16px; padding: 16px; background: var(--brand-soft); border-radius: 14px;
+    font-size: 15px; line-height: 1.55; color: #1E293B; animation: in .25s ease;
+  }
+  .answer-box p { margin: 0 0 8px; }
+  .answer-box p:last-child { margin-bottom: 0; }
+  .answer-box p:first-child { font-weight: 700; }
+
+  .btn {
+    display: block; width: 100%; margin-top: 18px; padding: 16px; border: 0; border-radius: 14px;
+    background: var(--brand); color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer;
+    transition: background .15s, opacity .15s;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--muted); font-size: 15px; font-weight: 600; margin-top: 8px; padding: 10px; }
+  .btn-ghost:hover { background: transparent; color: var(--ink); }
+
+  .checklist { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }
+  .checklist li { position: relative; padding-left: 24px; font-size: 15px; line-height: 1.4; }
+  .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 800; }
+  .checklist li span { color: var(--muted); }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .field input {
+    width: 100%; padding: 14px; border: 1.5px solid var(--line); border-radius: 12px;
+    font: inherit; font-size: 16px; background: #fff; color: var(--ink); outline: none;
+  }
+  .field input:focus { border-color: var(--brand); }
+  .field.invalid input { border-color: var(--err); }
+  .field .err { display: none; color: var(--err); font-size: 13px; margin-top: 5px; }
+  .field.invalid .err { display: block; }
+
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .fineprint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.5; }
+  .form-error { display: none; color: var(--err); font-size: 14px; text-align: center; margin-top: 10px; }
+
+  .done { text-align: center; }
+  .done .icon { width: 64px; height: 64px; border-radius: 50%; background: #DCFCE7; color: var(--ok);
+    display: grid; place-items: center; font-size: 32px; margin: 4px auto 16px; font-weight: 800; }
+
+  .hidden { display: none !important; }
+  @media (min-width: 600px) { .wrap { padding-top: 40px; } .card { padding: 32px 28px; } h1 { font-size: 30px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">Exam<span>Hub</span></div>
+    <div class="lang" id="langSwitch" role="group" aria-label="Til / Язык">
+      <button type="button" data-lang="uz">UZ</button>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </header>
+  <div class="progress hidden" id="progress"><i id="bar"></i></div>
+  <main id="app"></main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var CFG = window.QUIZ_CONFIG;
+
+  /* ================== ИНТЕРФЕЙС (UZ / RU) ================== */
+  var UI = {
+    uz: {
+      docTitle: 'ExamHub — matematikadan tayyorgarlik',
+      startTitle: 'Farzandingizga matematikadan qaysi tayyorgarlik yoʻli mos kelishini bilib oling',
+      startLead: '4 ta savolga javob bering — oxirida nimaga eʼtibor qaratish kerakligi va farzandingizga qaysi tayyorgarlik formati mos kelishini koʻrsatamiz.',
+      points: ['Taxminan 2 daqiqa vaqt oladi', 'Har bir javobdan keyin — qisqa tavsiya', 'Oxirida — mutaxassisdan tayyorgarlik yoʻnalishi'],
+      startBtn: 'Testni boshlash',
+      qLabel: function (i, n) { return 'Savol ' + i + '/' + n; },
+      next: 'Keyingi',
+      finish: 'Natijani bilish',
+      back: '← Orqaga',
+      contactTitle: 'Tayyorgarlik yoʻnalishingiz deyarli tayyor',
+      weFound: 'Biz aniqladik:',
+      contactLead: 'Aloqa maʼlumotlaringizni qoldiring — ExamHub mutaxassisi siz bilan bogʻlanadi, farzandingizning hozirgi darajasini aniqlashga yordam beradi va mos tayyorgarlik formatini taklif qiladi.',
+      nameLabel: 'Ota-onaning ismi',
+      namePh: 'Sizga qanday murojaat qilaylik?',
+      nameErr: 'Ismingizni kiriting',
+      phoneLabel: 'Telefon raqami',
+      phoneErr: 'Telefon raqamini tekshiring',
+      submit: 'Tavsiyalarni olish',
+      sending: 'Yuborilmoqda…',
+      sendErr: 'Yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring.',
+      consent: 'Tugmani bosish orqali shaxsiy maʼlumotlarni qayta ishlashga rozilik bildirasiz.',
+      doneTitle: 'Rahmat! Arizangiz qabul qilindi',
+      doneText: 'ExamHub mutaxassisi tez orada siz bilan bogʻlanadi, farzandingizning hozirgi darajasini aniqlashga yordam beradi va mos tayyorgarlik formatini taklif qiladi.'
+    },
+    ru: {
+      docTitle: 'ExamHub — подбор подготовки по математике',
+      startTitle: 'Узнайте, какой путь подготовки по математике подходит вашему ребёнку',
+      startLead: 'Ответьте на 4 вопроса — в конце мы покажем, на что стоит сделать упор и какой формат подготовки подойдёт ребёнку.',
+      points: ['Займёт около 2 минут', 'После каждого ответа — короткая рекомендация', 'В конце — маршрут подготовки от специалиста'],
+      startBtn: 'Пройти тест',
+      qLabel: function (i, n) { return 'Вопрос ' + i + ' из ' + n; },
+      next: 'Далее',
+      finish: 'Узнать результат',
+      back: '← Назад',
+      contactTitle: 'Ваш маршрут подготовки почти готов',
+      weFound: 'Мы определили:',
+      contactLead: 'Оставьте контактные данные — специалист ExamHub свяжется с вами, поможет определить текущий уровень ребёнка и предложит подходящий формат подготовки.',
+      nameLabel: 'Имя родителя',
+      namePh: 'Как к вам обращаться',
+      nameErr: 'Укажите имя',
+      phoneLabel: 'Номер телефона',
+      phoneErr: 'Проверьте номер телефона',
+      submit: 'Получить рекомендации по подготовке',
+      sending: 'Отправляем…',
+      sendErr: 'Не удалось отправить. Проверьте интернет и попробуйте ещё раз.',
+      consent: 'Нажимая кнопку, вы соглашаетесь на обработку персональных данных.',
+      doneTitle: 'Спасибо! Заявка принята',
+      doneText: 'Специалист ExamHub свяжется с вами в ближайшее время, поможет определить текущий уровень ребёнка и предложит подходящий формат подготовки.'
+    }
+  };
+
+  /* ================== КОНТЕНТ КВИЗА ================== */
+  // label/short/title: { uz, ru }; text: { uz: [...], ru: [...] }
+  // Первый абзац в text выделяется жирным.
+  var QUESTIONS = [
+    {
+      key: 'grade',
+      short: { uz: 'Farzand sinfi', ru: 'Класс ребёнка' },
+      title: { uz: 'Farzandingiz nechanchi sinfda oʻqiydi?', ru: 'В каком классе учится ваш ребёнок?' },
+      options: [
+        { label: { uz: '1–4-sinf', ru: '1–4 класс' }, text: {
+          uz: ['Ajoyib.',
+               'Bu yoshda bizning vazifamiz — shunchaki baholarni yaxshilash emas, balki farzandingiz keyinchalik tayanishi mumkin boʻlgan matematik poydevorni yaratish. Boʻshliqlarni qanchalik erta aniqlasak, murakkab mavzular boshlanishidan oldin ularni yopish shunchalik oson boʻladi.'],
+          ru: ['Отлично.',
+               'В этом возрасте наша задача — не просто подтянуть оценки, а заложить математическую базу, на которую ребёнок сможет опираться дальше. Чем раньше выявить пробелы, тем проще их закрыть до появления сложных тем.']
+        }},
+        { label: { uz: '5–7-sinf', ru: '5–7 класс' }, text: {
+          uz: ['Tizimli tayyorgarlik uchun ayni vaqt.',
+               'Hozir maktabdagi boʻshliqlarni yopibgina qolmay, farzandingizni asta-sekin masala yechishning yuqoriroq darajasiga olib chiqish mumkin.'],
+          ru: ['Это хороший момент для системной подготовки.',
+               'Сейчас можно не только закрыть школьные пробелы, но и постепенно вывести ребёнка на более высокий уровень решения задач.']
+        }},
+        { label: { uz: '8–9-sinf', ru: '8–9 класс' }, text: {
+          uz: ['Matematika alohida ahamiyat kasb eta boshlaydi.',
+               'Bu yoshda u kelajakdagi taʼlim yoʻnalishiga taʼsir qiladi. Boʻshliqlarni aniqlash va tayyorgarlikni aniq maqsad — maktab, litsey yoki kelgusi imtihonlar uchun qurish muhim.'],
+          ru: ['Математика становится особенно важной.',
+               'В этом возрасте она уже влияет на будущую образовательную траекторию. Важно определить пробелы и выстроить подготовку под конкретную цель — школу, лицей или будущие экзамены.']
+        }},
+        { label: { uz: '10–11-sinf', ru: '10–11 класс' }, text: {
+          uz: ['Hozir tizimli tayyorgarlik ayniqsa muhim.',
+               'Oʻqishga kirishgacha vaqt kamayib bormoqda, shuning uchun farzandingizning hozirgi darajasini tushunish va aynan kelajakdagi natijaga taʼsir qiladigan mavzular ustida ishlash kerak.'],
+          ru: ['Сейчас особенно важна системная подготовка.',
+               'Времени до поступления становится меньше, поэтому нужно понимать текущий уровень ребёнка и работать именно с теми темами, которые влияют на будущий результат.']
+        }},
+        { label: { uz: 'Bitiruvchi', ru: 'Выпускник' }, text: {
+          uz: ['Natijani yaxshilash mumkin.',
+               'Maktab kursi tugagan boʻlsa ham, tizimli tayyorgarlik oʻsish beradi. Asosiysi — hozirgi darajani aniqlash va dasturni aniq imtihonga moslab tuzish.'],
+          ru: ['Результат можно улучшить.',
+               'Даже если школьный курс уже закончен, системная подготовка даёт рост. Главное — определить текущий уровень и построить программу под конкретный экзамен.']
+        }}
+      ]
+    },
+    {
+      key: 'goal',
+      short: { uz: 'Tayyorgarlik maqsadi', ru: 'Цель подготовки' },
+      title: { uz: 'Matematika darslarining asosiy maqsadi nima?', ru: 'Какая главная цель занятий по математике?' },
+      options: [
+        { emoji: '🏫', label: { uz: 'Kuchli maktabga kirish', ru: 'Поступить в сильную школу' }, text: {
+          uz: ['Unda bizga shunchaki maktab matematikasi yetarli emas.',
+               'Tayyorgarlikni farzandingizning hozirgi darajasidan boshlab quramiz: avval boʻshliqlarni aniqlaymiz, soʻng matematik poydevorni shakllantiramiz va asta-sekin murakkabroq masalalarga oʻtamiz.',
+               'Prezident maktablari uchun matematika kirish sinovlarining muhim qismi: 2026-yilda ikkinchi bosqich 90 daqiqada matematika boʻyicha tanqidiy fikrlash va muammolarni hal qilishga oid 40 ta topshiriqdan iborat boʻlgan.',
+               'Tayyorgarlikdan maqsad — farzandingiz imtihon darajasidagi masalalarni ishonch bilan yecha olishi.'],
+          ru: ['Тогда нам важна не просто школьная математика.',
+               'Мы выстраиваем подготовку от текущего уровня ребёнка: сначала определяем пробелы, затем формируем математическую базу и постепенно переходим к более сложным задачам.',
+               'Для Президентских школ математика — важная часть вступительных испытаний: в 2026 году второй этап включал 40 заданий по критическому мышлению и решению проблем по математике за 90 минут.',
+               'Цель подготовки — чтобы ребёнок уверенно справлялся с задачами экзаменационного уровня.']
+        }},
+        { emoji: '🎓', label: { uz: 'Akademik litseyga kirish', ru: 'Поступить в академический лицей' }, text: {
+          uz: ['Demak, farzandingizni shunchaki maktab dasturiga emas, balki litseyning kirish talablariga tayyorlaymiz.',
+               'Hozirgi darajani aniqlaymiz, boʻshliqlarni topamiz va poydevordan imtihon masalalarigacha izchil tayyorgarlik quramiz.',
+               'Agar farzandingizda tegishli fan boʻyicha Milliy sertifikat boʻlsa, akademik litseyga kirishda u shu fandan maksimal ball olishi mumkin.',
+               'Shuning uchun toʻgʻri tayyorgarlik yoʻnalishini oldindan tanlash muhim.'],
+          ru: ['Значит, готовим не просто к школьной программе, а к вступительным требованиям лицея.',
+               'Мы определяем текущий уровень, находим пробелы и строим последовательную подготовку от базы к экзаменационным задачам.',
+               'А если у ребёнка уже есть National Certificate по соответствующему предмету, при поступлении в академический лицей он может получить максимальный балл по этому предмету.',
+               'Поэтому здесь важно заранее выбрать правильную траекторию подготовки.']
+        }},
+        { emoji: '🧮', label: { uz: 'DTMga tayyorlanish', ru: 'Подготовиться к DTM' }, text: {
+          uz: ['Unda har bir ball muhim.',
+               'Biz shunchaki mavzularni tushuntirmaymiz — farzandingiz bilimlarni test formatida qoʻllashni, xatolarni topishni va murakkab masalalar bilan ishlashni oʻrganadi.',
+               'ExamHub’da tayyorgarlik amaliyot, yechimlarni tahlil qilish va xatolar ustida ishlash asosida quriladi.',
+               'Zaif mavzular qanchalik erta aniqlansa, ularni bartaraf etishga shunchalik koʻp vaqt qoladi.'],
+          ru: ['Тогда каждый балл имеет значение.',
+               'Мы не просто объясняем темы — ребёнок учится применять знания в тестовом формате, находить ошибки и работать со сложными задачами.',
+               'В ExamHub подготовка строится вокруг практики, разбора решений и работы над ошибками.',
+               'Чем раньше определить слабые темы, тем больше времени остаётся на их устранение.']
+        }},
+        { emoji: '📜', label: { uz: 'Milliy sertifikat olish', ru: 'Получить National Certificate' }, text: {
+          uz: ['Bu yerda aniq oʻlchanadigan maqsad bor — sertifikat darajasi.',
+               'Matematika boʻyicha Milliy sertifikatda darajalar C dan boshlanib, A+ gacha boradi. 70 va undan yuqori ball uchun A+, 65–69,9 ball uchun A darajasi beriladi.',
+               'A+ yoki A darajali sertifikat bakalavriatga kirishda tegishli mutaxassislik fanidan maksimal ball berishi mumkin.',
+               'Shuning uchun tayyorgarlikni «matematikani bilish» atrofida emas, balki aniq imtihon natijasi atrofida qurish maqsadga muvofiq.'],
+          ru: ['Здесь есть конкретная измеримая цель — уровень сертификата.',
+               'В математическом National Certificate уровни начинаются с C и доходят до A+. При результате 70+ баллов присваивается A+, 65–69,9 — A.',
+               'Сертификат A+ или A может дать максимальный балл по соответствующему профильному предмету при поступлении в бакалавриат.',
+               'Поэтому подготовку имеет смысл строить не вокруг «знать математику», а вокруг конкретного результата экзамена.']
+        }},
+        { emoji: '🌎', label: { uz: 'SAT / xorijiy universitet', ru: 'SAT / зарубежный университет' }, text: {
+          uz: ['Bu yerda kuchli matematik poydevor ayniqsa muhim.',
+               'Faqat alohida turdagi topshiriqlarga tayyorlanish oʻrniga, farzandingiz matematikani tushunishi va uni notanish masalalarda qoʻllay olishi muhim.',
+               'Shuning uchun avval hozirgi darajani aniqlaymiz, soʻng individual tayyorgarlik yoʻnalishini shakllantiramiz.'],
+          ru: ['Здесь особенно важна сильная математическая база.',
+               'Вместо подготовки только к отдельным типам заданий ребёнку важно понимать математику и уметь применять её в незнакомых задачах.',
+               'Поэтому сначала определяем текущий уровень, а затем формируем индивидуальную траекторию подготовки.']
+        }},
+        { emoji: '📚', label: { uz: 'Oʻzlashtirishni yaxshilash', ru: 'Повысить успеваемость' }, text: {
+          uz: ['Poydevordan boshlaymiz.',
+               'Vazifamiz — farzandingiz qiynalayotgan mavzularni topish, boʻshliqlarni yopish va asta-sekin matematikaga ishonchni shakllantirish.',
+               'ExamHub’da daraja diagnostikasi va xatolar ustida ishlash qoʻllaniladi — farzandingiz shunchaki koʻproq masala yechmaydi, balki nega xato qilayotganini va uni qanday takrorlamaslikni tushunadi.'],
+          ru: ['Начнём с основы.',
+               'Наша задача — найти темы, в которых ребёнок испытывает сложности, закрыть пробелы и постепенно сформировать уверенность в математике.',
+               'В ExamHub используется диагностика уровня и работа с ошибками, чтобы ребёнок не просто решал больше задач, а понимал, почему ошибается и как не повторять эту ошибку.']
+        }}
+      ]
+    },
+    {
+      key: 'level',
+      short: { uz: 'Hozirgi daraja', ru: 'Текущий уровень' },
+      title: { uz: 'Hozir farzandingiz matematikani qanday oʻzlashtiryapti?', ru: 'Как сейчас ребёнок справляется с математикой?' },
+      options: [
+        { label: { uz: 'Aʼlo — murakkabroq masalalar yechishni xohlaydi', ru: 'Отлично — хочет решать задачи сложнее' }, text: {
+          uz: ['Ajoyib boshlanish nuqtasi.',
+               'Bunday holda maktab dasturini shunchaki takrorlashning maʼnosi yoʻq. Hozirgi darajani aniqlab, farzandingizni asta-sekin murakkabroq masalalarga oʻtkazish mumkin.'],
+          ru: ['Отличная отправная точка.',
+               'В таком случае нет смысла просто повторять школьную программу. Можно определить текущий уровень и постепенно переводить ребёнка к более сложным задачам.']
+        }},
+        { label: { uz: 'Yaxshi, lekin ayrim boʻshliqlar bor', ru: 'Хорошо, но есть отдельные пробелы' }, text: {
+          uz: ['Bu yerda nuqtaviy ish katta samara berishi mumkin.',
+               'Butun matematikani qaytadan oʻtish oʻrniga, avval zaif mavzularni aniqlab, ularga eʼtibor qaratamiz.'],
+          ru: ['Здесь точечная работа может дать большой эффект.',
+               'Вместо того чтобы заново проходить всю математику, сначала определим слабые темы и сосредоточимся на них.']
+        }},
+        { label: { uz: 'Oʻrtacha', ru: 'Средне' }, text: {
+          uz: ['Bu yerda sababni tushunish muhim.',
+               'Oʻrtacha natija ayrim boʻshliqlar bilan ham, tizimli tayyorgarlik yoʻqligi bilan ham bogʻliq boʻlishi mumkin. Shuning uchun keyingi qadam — daraja diagnostikasi.'],
+          ru: ['Здесь важно понять причину.',
+               'Средний результат может быть связан как с отдельными пробелами, так и с отсутствием системной подготовки. Поэтому следующим шагом должна стать диагностика уровня.']
+        }},
+        { label: { uz: 'Jiddiy qiyinchiliklar bor', ru: 'Есть серьёзные сложности' }, text: {
+          uz: ['Muammo emas — asosiysi toʻgʻri nuqtadan boshlash.',
+               'Farzandingizga birdaniga murakkab masalalar bermaymiz. Avval qaysi mavzularga eʼtibor kerakligini aniqlaymiz, soʻng boʻshliqlarni izchil yopib, darajani oshirib boramiz.'],
+          ru: ['Не проблема — главное начать с правильной точки.',
+               'Мы не будем сразу давать ребёнку сложные задачи. Сначала определим, какие темы требуют внимания, затем последовательно закроем пробелы и будем повышать уровень.']
+        }},
+        { label: { uz: 'Matematika juda qiyin kechyapti', ru: 'Математика даётся очень тяжело' }, text: {
+          uz: ['Asosiysi — topshiriqlar sonini koʻr-koʻrona oshirmaslik.',
+               'Avval qiyinchiliklarning asl sababini tushunish kerak: farzandingiz qaysi mavzularni oʻzlashtirmagan va xato aynan qayerda yuzaga kelyapti.',
+               'Shundan soʻng poydevordan murakkabroq masalalarga bosqichma-bosqich yoʻl qurish mumkin.'],
+          ru: ['Главное — не увеличивать количество заданий вслепую.',
+               'Сначала нужно понять фундаментальную причину трудностей: какие темы ребёнок не освоил и где именно возникает ошибка.',
+               'После этого можно выстроить постепенный маршрут от базы к более сложным задачам.']
+        }}
+      ]
+    },
+    {
+      key: 'deadline',
+      short: { uz: 'Muddatlar', ru: 'Сроки' },
+      title: { uz: 'Farzandingizni asosiy qabul yoki imtihon qachon kutmoqda?', ru: 'Когда ребёнку предстоит основное поступление или экзамен?' },
+      options: [
+        { label: { uz: 'Yaqin 3 oy ichida', ru: 'В ближайшие 3 месяца' }, text: {
+          uz: ['Unda ustuvor vazifalardan boshlaymiz.',
+               'Cheklangan vaqtda hamma narsani bir xil chuqurlikda oʻrganishga urinish emas, balki zaif joylarni aniqlab, imtihon uchun eng muhim mavzularga eʼtibor qaratish kerak.'],
+          ru: ['Тогда начинаем с приоритетов.',
+               'За ограниченное время важно не пытаться изучить всё одинаково глубоко, а определить слабые места и сфокусироваться на темах, которые наиболее важны для экзамена.']
+        }},
+        { label: { uz: '3–6 oydan keyin', ru: 'Через 3–6 месяцев' }, text: {
+          uz: ['Tizimli tayyorgarlik uchun yaxshi muddat.',
+               'Diagnostikadan oʻtish, boʻshliqlarni yopish va imtihon topshiriqlarini muntazam mashq qilish uchun vaqt qoldirish mumkin.'],
+          ru: ['Хороший срок для системной подготовки.',
+               'Можно пройти диагностику, закрыть пробелы и оставить время на регулярную практику экзаменационных заданий.']
+        }},
+        { label: { uz: '6–12 oydan keyin', ru: 'Через 6–12 месяцев' }, text: {
+          uz: ['Toʻliq tayyorgarlik yoʻnalishini qurishga vaqt bor.',
+               'Asosiy mavzularni izchil oʻtib, boʻshliqlarni bartaraf etib, soʻngra jadal imtihon amaliyotiga oʻtish mumkin.'],
+          ru: ['Есть время построить полноценную траекторию.',
+               'Можно последовательно пройти базовые темы, устранить пробелы и затем перейти к интенсивной экзаменационной практике.']
+        }},
+        { label: { uz: '1–2 yildan keyin', ru: 'Через 1–2 года' }, text: {
+          uz: ['Boshlash uchun juda yaxshi payt.',
+               'Oʻqishni stressli imtihon tayyorgarligiga aylantirishning hojati yoʻq. Asta-sekin kuchli matematik poydevor yaratib, imtihonga tayyor holda borish mumkin.'],
+          ru: ['Это очень хороший момент для старта.',
+               'Нет необходимости превращать обучение в стрессовую подготовку к экзамену. Можно постепенно сформировать сильную математическую базу и подойти к экзамену подготовленным.']
+        }},
+        { label: { uz: 'Hali aniqlanmagan', ru: 'Пока не определились' }, text: {
+          uz: ['Unda imtihondan emas, farzandingizning darajasidan boshlaymiz.',
+               'Diagnostika matematik poydevor qanchalik yaxshi shakllanganini va qaysi mavzularga eʼtibor kerakligini tushunishga yordam beradi.'],
+          ru: ['Тогда начнём не с экзамена, а с уровня ребёнка.',
+               'Диагностика поможет понять, насколько хорошо сформирована математическая база и какие темы требуют внимания.']
+        }}
+      ]
+    }
+  ];
+
+  /* ================== ЯЗЫК ================== */
+  var LANG_KEY = 'examhub_quiz_lang';
+  function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  var lang = (function () {
+    var p = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+    if (p === 'uz' || p === 'ru') return p;
+    var s = safeGet(LANG_KEY);
+    if (s === 'uz' || s === 'ru') return s;
+    return CFG.DEFAULT_LANG === 'ru' ? 'ru' : 'uz';
+  })();
+  function t() { return UI[lang]; }
+
+  var langSwitch = document.getElementById('langSwitch');
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.title = t().docTitle;
+    Array.prototype.forEach.call(langSwitch.children, function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+  }
+  langSwitch.onclick = function (e) {
+    var l = e.target.getAttribute && e.target.getAttribute('data-lang');
+    if (!l || l === lang) return;
+    // сохраняем уже введённые имя/телефон при переключении
+    var n = document.getElementById('name'), ph = document.getElementById('phone');
+    if (n) state.draftName = n.value;
+    if (ph) state.draftPhone = ph.value;
+    lang = l;
+    safeSet(LANG_KEY, l);
+    applyLang();
+    render();
+  };
+
+  /* ================== UTM / АТРИБУЦИЯ ================== */
+  var TRACK_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'];
+  var STORE_KEY = 'examhub_quiz_attr';
+
+  function getCookie(name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  var attribution = (function () {
+    var params = new URLSearchParams(location.search);
+    var fromUrl = {};
+    var hasNew = false;
+    TRACK_KEYS.forEach(function (k) {
+      var v = params.get(k);
+      if (v) { fromUrl[k] = v.slice(0, 250); hasNew = true; }
+    });
+    var saved = null;
+    try { saved = JSON.parse(safeGet(STORE_KEY) || 'null'); } catch (e) {}
+    // Новые метки в URL перезаписывают старые (last click), иначе берём сохранённые
+    var attr = hasNew ? fromUrl : (saved || {});
+    if (hasNew) {
+      attr.landing_url = location.href.slice(0, 1000);
+      attr.referrer = document.referrer.slice(0, 500);
+      attr.first_seen = new Date().toISOString();
+      safeSet(STORE_KEY, JSON.stringify(attr));
+    }
+    if (!attr.landing_url) attr.landing_url = location.href.slice(0, 1000);
+    if (!attr.referrer) attr.referrer = document.referrer.slice(0, 500);
+    return attr;
+  })();
+
+  function fbData() {
+    var fbc = getCookie('_fbc');
+    if (!fbc && attribution.fbclid) fbc = 'fb.1.' + Date.now() + '.' + attribution.fbclid;
+    return { fbp: getCookie('_fbp'), fbc: fbc };
+  }
+
+  /* ================== СОСТОЯНИЕ ================== */
+  var state = { step: -1, answers: {}, sending: false, done: false, draftName: '', draftPhone: '' };
+  var app = document.getElementById('app');
+  var progress = document.getElementById('progress');
+  var bar = document.getElementById('bar');
+  var TOTAL = QUESTIONS.length;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+  function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function setProgress(step) {
+    if (step < 0) { progress.classList.add('hidden'); return; }
+    progress.classList.remove('hidden');
+    bar.style.width = (step >= TOTAL ? 100 : Math.round((step / TOTAL) * 100)) + '%';
+  }
+
+  /* ================== ЭКРАНЫ ================== */
+  function renderStart() {
+    setProgress(-1);
+    var T = t();
+    app.innerHTML =
+      '<div class="card">' +
+        '<h1>' + esc(T.startTitle) + '</h1>' +
+        '<p class="lead">' + esc(T.startLead) + '</p>' +
+        '<ul class="hero-points">' +
+          T.points.map(function (p, i) { return '<li><b>' + ['①','②','③'][i] + '</b> ' + esc(p) + '</li>'; }).join('') +
+        '</ul>' +
+        '<button class="btn" id="startBtn">' + esc(T.startBtn) + '</button>' +
+      '</div>';
+    document.getElementById('startBtn').onclick = function () {
+      fbq('trackCustom', 'QuizStart', { lang: lang });
+      state.step = 0; render();
+    };
+  }
+
+  function renderQuestion(i) {
+    var T = t();
+    var q = QUESTIONS[i];
+    setProgress(i);
+    var chosen = state.answers[q.key];
+    var html =
+      '<div class="card">' +
+        '<div class="qlabel">' + esc(T.qLabel(i + 1, TOTAL)) + '</div>' +
+        '<h2>' + esc(q.title[lang]) + '</h2>' +
+        '<div class="options">';
+    q.options.forEach(function (o, idx) {
+      var sel = chosen === idx ? ' selected' : '';
+      html += '<button class="opt' + sel + '" data-idx="' + idx + '">' +
+                '<span class="dot"></span>' +
+                (o.emoji ? '<span class="emoji">' + o.emoji + '</span>' : '') +
+                '<span>' + esc(o.label[lang]) + '</span>' +
+              '</button>';
+    });
+    html += '</div><div id="answerBox"></div>' +
+            '<button class="btn" id="nextBtn"' + (chosen != null ? '' : ' disabled') + '>' +
+              esc(i === TOTAL - 1 ? T.finish : T.next) + '</button>' +
+            (i > 0 ? '<button class="btn btn-ghost" id="backBtn">' + esc(T.back) + '</button>' : '') +
+          '</div>';
+    app.innerHTML = html;
+
+    if (chosen != null) showAnswer(q.options[chosen]);
+
+    Array.prototype.forEach.call(app.querySelectorAll('.opt'), function (btn) {
+      btn.onclick = function () {
+        var idx = +btn.getAttribute('data-idx');
+        state.answers[q.key] = idx;
+        Array.prototype.forEach.call(app.querySelectorAll('.opt'), function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        showAnswer(q.options[idx]);
+        document.getElementById('nextBtn').disabled = false;
+        var box = document.getElementById('answerBox');
+        setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+      };
+    });
+    document.getElementById('nextBtn').onclick = function () { state.step = i + 1; render(); scrollTop(); };
+    var back = document.getElementById('backBtn');
+    if (back) back.onclick = function () { state.step = i - 1; render(); scrollTop(); };
+  }
+
+  function showAnswer(opt) {
+    document.getElementById('answerBox').innerHTML = '<div class="answer-box">' +
+      opt.text[lang].map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') + '</div>';
+  }
+
+  function renderContact() {
+    var T = t();
+    setProgress(TOTAL);
+    var summary = QUESTIONS.map(function (q) {
+      var a = state.answers[q.key];
+      return '<li>' + esc(q.short[lang]) + (a != null ? ': <span>' + esc(q.options[a].label[lang]) + '</span>' : '') + '</li>';
+    }).join('');
+    app.innerHTML =
+      '<div class="card">' +
+        '<h2>' + esc(T.contactTitle) + '</h2>' +
+        '<p class="lead" style="margin-bottom:12px">' + esc(T.weFound) + '</p>' +
+        '<ul class="checklist">' + summary + '</ul>' +
+        '<p class="lead">' + esc(T.contactLead) + '</p>' +
+        '<form id="leadForm" novalidate>' +
+          '<div class="field" id="f-name"><label for="name">' + esc(T.nameLabel) + '</label>' +
+            '<input id="name" name="name" autocomplete="name" placeholder="' + esc(T.namePh) + '">' +
+            '<div class="err">' + esc(T.nameErr) + '</div></div>' +
+          '<div class="field" id="f-phone"><label for="phone">' + esc(T.phoneLabel) + '</label>' +
+            '<input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 __ ___ __ __">' +
+            '<div class="err">' + esc(T.phoneErr) + '</div></div>' +
+          '<div class="hp" aria-hidden="true"><input name="website" id="website" tabindex="-1" autocomplete="off"></div>' +
+          '<button class="btn" type="submit" id="submitBtn">' + esc(T.submit) + '</button>' +
+          '<div class="form-error" id="formError">' + esc(T.sendErr) + '</div>' +
+          '<p class="fineprint">' + esc(T.consent) + '</p>' +
+        '</form>' +
+      '</div>';
+
+    var nameEl = document.getElementById('name');
+    var phone = document.getElementById('phone');
+    nameEl.value = state.draftName || '';
+    phone.value = state.draftPhone || '';
+
+    phone.addEventListener('focus', function () { if (!phone.value) phone.value = '+998 '; });
+    phone.addEventListener('input', function () { phone.value = formatPhone(phone.value); });
+
+    document.getElementById('leadForm').onsubmit = onSubmit;
+  }
+
+  function digits(v) { return (v || '').replace(/\D/g, ''); }
+  function formatPhone(v) {
+    var d = digits(v);
+    if (!d.startsWith('998')) {
+      // Если вводят иностранный номер — не мешаем
+      return v.charAt(0) === '+' || !d ? (d ? '+' + d : v) : '+' + d;
+    }
+    d = d.slice(0, 12);
+    var out = '+998';
+    var rest = d.slice(3);
+    if (rest.length) out += ' ' + rest.slice(0, 2);
+    if (rest.length > 2) out += ' ' + rest.slice(2, 5);
+    if (rest.length > 5) out += ' ' + rest.slice(5, 7);
+    if (rest.length > 7) out += ' ' + rest.slice(7, 9);
+    return out;
+  }
+  function validPhone(v) {
+    var d = digits(v);
+    if (d.startsWith('998')) return d.length === 12;
+    return d.length >= 10 && d.length <= 15;
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    if (state.sending) return;
+    var T = t();
+    var name = document.getElementById('name').value.trim();
+    var phoneVal = document.getElementById('phone').value.trim();
+    var nameOk = !!name, pOk = validPhone(phoneVal);
+    document.getElementById('f-name').classList.toggle('invalid', !nameOk);
+    document.getElementById('f-phone').classList.toggle('invalid', !pOk);
+    if (!nameOk || !pOk) return;
+
+    // Honeypot: боты заполняют скрытое поле
+    if (document.getElementById('website').value) { state.done = true; renderDone(); return; }
+
+    var eventId = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    // В CRM ответы уходят на русском — менеджерам так удобнее, язык квиза передаётся отдельно
+    var answers = {};
+    QUESTIONS.forEach(function (q) {
+      var a = state.answers[q.key];
+      answers[q.key] = a != null ? q.options[a].label.ru : '';
+    });
+
+    var payload = {
+      quiz: CFG.QUIZ_NAME,
+      lang: lang,
+      name: name,
+      phone: '+' + digits(phoneVal),
+      answers: answers,
+      attribution: attribution,
+      fb: fbData(),
+      event_id: eventId,
+      page_url: location.href,
+      user_agent: navigator.userAgent,
+      submitted_at: new Date().toISOString()
+    };
+
+    var btn = document.getElementById('submitBtn');
+    var errEl = document.getElementById('formError');
+    state.sending = true;
+    btn.disabled = true;
+    btn.textContent = T.sending;
+    errEl.style.display = 'none';
+
+    // text/plain — «простой» запрос без CORS-preflight, Apps Script его принимает
+    fetch(CFG.ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res || !res.ok) throw new Error((res && res.error) || 'bad response');
+      fbq('track', 'Lead', { content_name: CFG.QUIZ_NAME, lang: lang }, { eventID: eventId });
+      state.done = true;
+      renderDone();
+    })
+    .catch(function (err) {
+      console.error(err);
+      state.sending = false;
+      btn.disabled = false;
+      btn.textContent = t().submit;
+      errEl.style.display = 'block';
+    });
+  }
+
+  function renderDone() {
+    var T = t();
+    setProgress(TOTAL);
+    app.innerHTML =
+      '<div class="card done">' +
+        '<div class="icon">✓</div>' +
+        '<h2>' + esc(T.doneTitle) + '</h2>' +
+        '<p class="lead">' + esc(T.doneText) + '</p>' +
+      '</div>';
+    scrollTop();
+  }
+
+  function render() {
+    if (state.done) return renderDone();
+    if (state.step < 0) return renderStart();
+    if (state.step < TOTAL) return renderQuestion(state.step);
+    return renderContact();
+  }
+
+  applyLang();
+  render();
+})();
+</script>
+</body>
+</html>
