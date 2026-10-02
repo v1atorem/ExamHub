@@ -19,7 +19,12 @@ window.QUIZ_CONFIG = {
   // Название квиза — уйдёт в карточку KeyCRM
   QUIZ_NAME: 'Квиз ExamHub — математика',
   // Язык по умолчанию: 'uz' или 'ru'. Можно переопределить ссылкой ?lang=ru
-  DEFAULT_LANG: 'uz'
+  DEFAULT_LANG: 'uz',
+  // Username Telegram-бота без @ (например 'examhub_uz_bot').
+  // Оставьте пустым — тогда после заявки просто покажется экран «Спасибо» без перехода.
+  TELEGRAM_BOT: 'ExamHub_uz_bot',
+  // Через сколько секунд после заявки автоматически открывать бота
+  REDIRECT_SECONDS: 5
 };
 </script>
 
@@ -149,6 +154,14 @@ window.QUIZ_CONFIG = {
   .done .icon { width: 64px; height: 64px; border-radius: 50%; background: #DCFCE7; color: var(--ok);
     display: grid; place-items: center; font-size: 32px; margin: 4px auto 16px; font-weight: 800; }
 
+  .tg-note {
+    display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 4px; padding: 12px 14px;
+    background: #E8F4FD; border-radius: 12px; font-size: 14px; line-height: 1.45; color: #0F3A5C;
+  }
+  .tg-note svg, .btn-tg svg { flex: 0 0 auto; }
+  .btn-tg { display: flex; align-items: center; justify-content: center; gap: 10px; background: #229ED9; text-decoration: none; }
+  .btn-tg:hover { background: #1B8BC2; }
+  .countdown { font-size: 14px; color: var(--muted); margin-top: 12px; }
   .hidden { display: none !important; }
   @media (min-width: 600px) { .wrap { padding-top: 40px; } .card { padding: 32px 28px; } h1 { font-size: 30px; } }
 </style>
@@ -196,7 +209,13 @@ window.QUIZ_CONFIG = {
       sendErr: 'Yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring.',
       consent: 'Tugmani bosish orqali shaxsiy maʼlumotlarni qayta ishlashga rozilik bildirasiz.',
       doneTitle: 'Rahmat! Arizangiz qabul qilindi',
-      doneText: 'ExamHub mutaxassisi tez orada siz bilan bogʻlanadi, farzandingizning hozirgi darajasini aniqlashga yordam beradi va mos tayyorgarlik formatini taklif qiladi.'
+      doneText: 'ExamHub mutaxassisi tez orada siz bilan bogʻlanadi, farzandingizning hozirgi darajasini aniqlashga yordam beradi va mos tayyorgarlik formatini taklif qiladi.',
+      tgNote: 'Arizani yuborganingizdan soʻng sizni ExamHub Telegram-botiga yoʻnaltiramiz — u yerda tavsiyalarni olasiz va mutaxassis bilan tezda bogʻlanishingiz mumkin.',
+      tgDoneText: 'Hozir sizni ExamHub Telegram-botiga yoʻnaltiramiz. U yerda tayyorgarlik boʻyicha tavsiyalarni olasiz va mutaxassis bilan bogʻlanishingiz mumkin.',
+      tgCountdown: function (n) { return n + ' soniyadan soʻng avtomatik oʻtasiz'; },
+      tgOpening: 'Telegram ochilmoqda…',
+      tgBtn: 'Telegram-botga oʻtish',
+      tgHint: 'Agar Telegram ochilmasa, yuqoridagi tugmani bosing.'
     },
     ru: {
       docTitle: 'ExamHub — подбор подготовки по математике',
@@ -221,7 +240,13 @@ window.QUIZ_CONFIG = {
       sendErr: 'Не удалось отправить. Проверьте интернет и попробуйте ещё раз.',
       consent: 'Нажимая кнопку, вы соглашаетесь на обработку персональных данных.',
       doneTitle: 'Спасибо! Заявка принята',
-      doneText: 'Специалист ExamHub свяжется с вами в ближайшее время, поможет определить текущий уровень ребёнка и предложит подходящий формат подготовки.'
+      doneText: 'Специалист ExamHub свяжется с вами в ближайшее время, поможет определить текущий уровень ребёнка и предложит подходящий формат подготовки.',
+      tgNote: 'После отправки заявки мы перенаправим вас в Telegram-бот ExamHub — там вы получите рекомендации и сможете быстро связаться со специалистом.',
+      tgDoneText: 'Сейчас мы перенаправим вас в Telegram-бот ExamHub. Там вы получите рекомендации по подготовке и сможете связаться со специалистом.',
+      tgCountdown: function (n) { return 'Автоматический переход через ' + n + ' сек.'; },
+      tgOpening: 'Открываем Telegram…',
+      tgBtn: 'Перейти в Telegram-бот',
+      tgHint: 'Если Telegram не открылся, нажмите на кнопку выше.'
     }
   };
 
@@ -234,7 +259,13 @@ window.QUIZ_CONFIG = {
       short: { uz: 'Farzand sinfi', ru: 'Класс ребёнка' },
       title: { uz: 'Farzandingiz nechanchi sinfda oʻqiydi?', ru: 'В каком классе учится ваш ребёнок?' },
       options: [
-                { label: { uz: '5–7-sinf', ru: '5–7 класс' }, text: {
+        { label: { uz: '1–4-sinf', ru: '1–4 класс' }, text: {
+          uz: ['Ajoyib.',
+               'Bu yoshda bizning vazifamiz — shunchaki baholarni yaxshilash emas, balki farzandingiz keyinchalik tayanishi mumkin boʻlgan matematik poydevorni yaratish. Boʻshliqlarni qanchalik erta aniqlasak, murakkab mavzular boshlanishidan oldin ularni yopish shunchalik oson boʻladi.'],
+          ru: ['Отлично.',
+               'В этом возрасте наша задача — не просто подтянуть оценки, а заложить математическую базу, на которую ребёнок сможет опираться дальше. Чем раньше выявить пробелы, тем проще их закрыть до появления сложных тем.']
+        }},
+        { label: { uz: '5–7-sinf', ru: '5–7 класс' }, text: {
           uz: ['Tizimli tayyorgarlik uchun ayni vaqt.',
                'Hozir maktabdagi boʻshliqlarni yopibgina qolmay, farzandingizni asta-sekin masala yechishning yuqoriroq darajasiga olib chiqish mumkin.'],
           ru: ['Это хороший момент для системной подготовки.',
@@ -486,6 +517,13 @@ window.QUIZ_CONFIG = {
       return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
     });
   }
+  var TG_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.94 4.3a1.2 1.2 0 0 0-1.62-1.3L2.86 9.73c-1.17.46-1.16 1.12-.21 1.41l4.48 1.4 1.73 5.3c.21.58.1.81.71.81.47 0 .68-.21.94-.47l2.25-2.19 4.68 3.46c.86.47 1.48.23 1.7-.8l3.07-14.45-.27.1zM8.86 12.2l9.07-5.72c.45-.28.87-.13.53.18l-7.77 7.01-.3 3.23-1.53-4.7z"/></svg>';
+  function tgEnabled() { return CFG.TELEGRAM_BOT && CFG.TELEGRAM_BOT.indexOf('PASTE_') !== 0; }
+  function tgLink() {
+    // start-параметр: только латиница/цифры/_/-, до 64 символов. Бот увидит язык и ID карточки KeyCRM.
+    var start = ('quiz_' + lang + (state.cardId ? '_' + state.cardId : '')).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+    return 'https://t.me/' + CFG.TELEGRAM_BOT.replace(/^@/, '') + '?start=' + start;
+  }
   function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
   function setProgress(step) {
     if (step < 0) { progress.classList.add('hidden'); return; }
@@ -582,6 +620,7 @@ window.QUIZ_CONFIG = {
             '<input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 __ ___ __ __">' +
             '<div class="err">' + esc(T.phoneErr) + '</div></div>' +
           '<div class="hp" aria-hidden="true"><input name="website" id="website" tabindex="-1" autocomplete="off"></div>' +
+          (tgEnabled() ? '<div class="tg-note">' + TG_ICON + '<span>' + esc(T.tgNote) + '</span></div>' : '') +
           '<button class="btn" type="submit" id="submitBtn">' + esc(T.submit) + '</button>' +
           '<div class="form-error" id="formError">' + esc(T.sendErr) + '</div>' +
           '<p class="fineprint">' + esc(T.consent) + '</p>' +
@@ -674,6 +713,7 @@ window.QUIZ_CONFIG = {
     .then(function (res) {
       if (!res || !res.ok) throw new Error((res && res.error) || 'bad response');
       fbq('track', 'Lead', { content_name: CFG.QUIZ_NAME, lang: lang }, { eventID: eventId });
+      state.cardId = res.card_id || '';
       state.done = true;
       renderDone();
     })
@@ -686,16 +726,58 @@ window.QUIZ_CONFIG = {
     });
   }
 
+  var redirectTimer = null;
   function renderDone() {
     var T = t();
     setProgress(TOTAL);
+    if (!tgEnabled()) {
+      app.innerHTML =
+        '<div class="card done">' +
+          '<div class="icon">✓</div>' +
+          '<h2>' + esc(T.doneTitle) + '</h2>' +
+          '<p class="lead">' + esc(T.doneText) + '</p>' +
+        '</div>';
+      scrollTop();
+      return;
+    }
+    var url = tgLink();
     app.innerHTML =
       '<div class="card done">' +
         '<div class="icon">✓</div>' +
         '<h2>' + esc(T.doneTitle) + '</h2>' +
-        '<p class="lead">' + esc(T.doneText) + '</p>' +
+        '<p class="lead" style="margin-bottom:6px">' + esc(T.tgDoneText) + '</p>' +
+        '<a class="btn btn-tg" id="tgBtn" href="' + esc(url) + '">' + TG_ICON + '<span>' + esc(T.tgBtn) + '</span></a>' +
+        '<div class="countdown" id="countdown"></div>' +
       '</div>';
     scrollTop();
+
+    document.getElementById('tgBtn').onclick = function () {
+      fbq('trackCustom', 'TelegramClick', { lang: lang });
+    };
+
+    // Обратный отсчёт и автопереход (запускается один раз, переключение языка его не сбрасывает)
+    if (state.secondsLeft == null) state.secondsLeft = Math.max(0, CFG.REDIRECT_SECONDS | 0);
+    var cd = document.getElementById('countdown');
+    function tick() {
+      var Tn = t();
+      if (state.secondsLeft > 0) {
+        cd.textContent = Tn.tgCountdown(state.secondsLeft);
+      } else {
+        cd.textContent = Tn.tgOpening + ' ' + Tn.tgHint;
+      }
+    }
+    tick();
+    if (redirectTimer) return;
+    redirectTimer = setInterval(function () {
+      state.secondsLeft--;
+      var el = document.getElementById('countdown');
+      if (el) { cd = el; tick(); }
+      if (state.secondsLeft <= 0) {
+        clearInterval(redirectTimer);
+        fbq('trackCustom', 'TelegramRedirect', { lang: lang });
+        window.location.href = tgLink();
+      }
+    }, 1000);
   }
 
   function render() {
